@@ -15,6 +15,31 @@ function saveTasks() {
   localStorage.setItem("tasks", JSON.stringify(tasks));
 }
 
+// Swap a task's text for an input: Enter saves, Escape cancels
+function startEditing(text, index) {
+  const editInput = document.createElement("input");
+  editInput.value = tasks[index].text;
+  text.replaceWith(editInput);
+  editInput.focus();
+
+  editInput.addEventListener("keydown", function (event) {
+    if (event.key === "Enter") {
+      const newText = editInput.value.trim();
+      // An empty edit keeps the old text
+      if (newText !== "") {
+        tasks[index].text = newText;
+        saveTasks();
+      }
+      renderTasks();
+    } else if (event.key === "Escape") {
+      renderTasks();
+    }
+  });
+
+  // Clicking away cancels the edit
+  editInput.addEventListener("blur", renderTasks);
+}
+
 function renderTasks() {
   list.innerHTML = "";
 
@@ -43,6 +68,9 @@ function renderTasks() {
 
     const text = document.createElement("span");
     text.textContent = task.text;
+    text.addEventListener("dblclick", function () {
+      startEditing(text, index);
+    });
 
     const deleteBtn = document.createElement("button");
     deleteBtn.textContent = "Delete";
